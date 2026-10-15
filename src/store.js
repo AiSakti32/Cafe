@@ -37,6 +37,8 @@ export const isContoh = (m) =>
 
 export const hitungTotal = (items) => items.reduce((n, i) => n + i.harga * i.qty, 0)
 
+const PENGATURAN_AWAL = { namaCafe: '', alamat: '', noWa: '', teksStruk: 'Terima kasih!', gambarQris: null, terakhirBackup: null }
+
 export const useStore = create(
   persist(
     (set, get) => ({
@@ -44,7 +46,12 @@ export const useStore = create(
       menu: [],
       keranjang: [], // [{ menuId, nama, harga, qty, catatan }], nama & harga disalin saat ditambah
       transaksi: [],
-      pengaturan: { namaCafe: '', alamat: '', noWa: '', teksStruk: 'Terima kasih!', gambarQris: null, terakhirBackup: null },
+      pengaturan: PENGATURAN_AWAL,
+
+      simpanPengaturan: (data) => set((s) => ({ pengaturan: { ...s.pengaturan, ...data } })),
+      // Transaksi batal tetap tercatat, hanya tidak dihitung di laporan (L6).
+      batalkanTransaksi: (id) =>
+        set((s) => ({ transaksi: s.transaksi.map((t) => (t.id === id && t.status === 'selesai' ? { ...t, status: 'batal' } : t)) })),
 
       simpanMenu: (data) =>
         set((s) => ({
@@ -133,6 +140,56 @@ export const useStore = create(
     { name: 'kasir-cafe' },
   ),
 )
+
+// Pengingat backup tiap 7 hari, dihitung dari backup terakhir (atau transaksi pertama kalau belum pernah backup).
+export const perluBackup = (s) => {
+  const acuan = s.pengaturan.terakhirBackup ?? s.transaksi[0]?.waktu
+  return !!acuan && Date.now() - new Date(acuan) > 7 * 864e5
+}
+
+// Isi file backup .json: seluruh data store.
+export function buatBackup() {
+  useStore.getState().simpanPengaturan({ terakhirBackup: new Date().toISOString() })
+  const { kategori, menu, keranjang, transaksi, pengaturan } = useStore.getState()
+  return { app: 'kasir-cafe', versi: 1, dibuat: pengaturan.terakhirBackup, data: { kategori, menu, keranjang, transaksi, pengaturan } }
+}
+
+// File restore datang dari luar aplikasi: cek bentuknya dulu supaya data rusak tidak membuat halaman error.
+export function bacaBackup(json) {
+  const d = json?.data
+  const str = (v) => typeof v === 'string'
+  const num = (v) => typeof v === 'number' && Number.isFinite(v)
+  const valid =
+    json?.app === 'kasir-cafe' &&
+    d &&
+    Array.isArray(d.kategori) &&
+    d.kategori.every((k) => str(k?.id) && str(k.nama)) &&
+    Array.isArray(d.menu) &&
+    d.menu.every((m) => str(m?.id) && str(m.nama) && str(m.kategoriId) && num(m.harga)) &&
+    Array.isArray(d.transaksi) &&
+    d.transaksi.every(
+      (t) =>
+        str(t?.id) &&
+        num(t.nomor) &&
+        num(t.total) &&
+        !isNaN(new Date(t.waktu)) &&
+        Array.isArray(t.items) &&
+        t.items.every((i) => str(i?.nama) && num(i.qty) && num(i.harga)),
+    ) &&
+    d.pengaturan !== null &&
+    typeof d.pengaturan === 'object'
+  if (!valid) throw new Error('File ini bukan backup Kasir Cafe yang valid.')
+  return d
+}
+
+export const pulihkan = (d) =>
+  useStore.setState({
+    kategori: d.kategori,
+    menu: d.menu,
+    transaksi: d.transaksi,
+    keranjang: Array.isArray(d.keranjang) ? d.keranjang : [],
+    pengaturan: { ...PENGATURAN_AWAL, ...d.pengaturan },
+  })
 
 // Minta browser tidak menghapus data otomatis (perlu HTTPS/localhost).
 navigator.storage?.persist?.()

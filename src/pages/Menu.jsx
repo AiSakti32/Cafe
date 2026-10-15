@@ -3,6 +3,7 @@ import { Plus, Pencil, Trash2, Check, X, ImagePlus } from 'lucide-react'
 import { useStore } from '../store'
 import { rupiah } from '../lib/format'
 import MenuThumb from '../components/MenuThumb'
+import { kompresGambar } from '../lib/gambar'
 
 export default function Menu() {
   const [tab, setTab] = useState('menu')
@@ -103,17 +104,6 @@ function DaftarMenu({ onUbah, onTambah }) {
   })
 }
 
-// Foto diperkecil ke sisi terpanjang 300px supaya muat di localStorage.
-async function kompres(file) {
-  const img = await createImageBitmap(file)
-  const s = Math.min(1, 300 / Math.max(img.width, img.height))
-  const c = document.createElement('canvas')
-  c.width = Math.round(img.width * s)
-  c.height = Math.round(img.height * s)
-  c.getContext('2d').drawImage(img, 0, 0, c.width, c.height)
-  return c.toDataURL('image/jpeg', 0.8)
-}
-
 function FormMenu({ menu, onTutup }) {
   const { kategori, simpanMenu, hapusMenu } = useStore()
   const [nama, setNama] = useState(menu.nama ?? '')
@@ -133,7 +123,7 @@ function FormMenu({ menu, onTutup }) {
     e.target.value = ''
     if (!file) return
     try {
-      setFoto(await kompres(file))
+      setFoto(await kompresGambar(file, 300))
     } catch {
       alert('Foto tidak bisa dibaca. Coba foto lain (JPG/PNG).')
     }

@@ -1,5 +1,6 @@
-import { NavLink, Outlet } from 'react-router-dom'
-import { ShoppingCart, ChartColumn, Coffee, Settings } from 'lucide-react'
+import { Link, NavLink, Outlet } from 'react-router-dom'
+import { ShoppingCart, ChartColumn, Coffee, Settings, TriangleAlert } from 'lucide-react'
+import { useStore, perluBackup } from '../store'
 
 const nav = [
   { to: '/', label: 'Kasir', icon: ShoppingCart, end: true },
@@ -9,6 +10,8 @@ const nav = [
 ]
 
 export default function Layout() {
+  const ingatkanBackup = useStore(perluBackup)
+
   return (
     <div className="min-h-dvh lg:pl-56">
       {/* Sidebar (≥1024px) */}
@@ -34,6 +37,15 @@ export default function Layout() {
       </aside>
 
       <main className="pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0">
+        {/* Pengingat backup 7 hari (P3) */}
+        {ingatkanBackup && (
+          <Link to="/pengaturan" className="flex min-h-11 items-center gap-2 bg-amber-100 px-4 py-2 text-sm text-amber-900">
+            <TriangleAlert size={18} className="shrink-0" />
+            <span>
+              Sudah lebih dari 7 hari belum backup data. <b className="underline">Backup sekarang</b>
+            </span>
+          </Link>
+        )}
         <Outlet />
       </main>
 

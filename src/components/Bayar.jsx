@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { X, Check, MessageCircle, Printer, Plus } from 'lucide-react'
+import { X, Check, Plus } from 'lucide-react'
 import { useStore, hitungTotal } from '../store'
-import { rupiah, nomorTrx, teksStruk } from '../lib/format'
-import Struk from './Struk'
+import { rupiah, nomorTrx } from '../lib/format'
+import { TombolStruk } from './Struk'
 
 // HP: layar penuh. sm ke atas: dialog di tengah.
 function Modal({ children, onTutup }) {
@@ -130,12 +130,6 @@ export default function Bayar({ onTutup }) {
 }
 
 function Sukses({ t, onBaru }) {
-  const pengaturan = useStore((s) => s.pengaturan)
-
-  // ``` = teks monospace di WhatsApp, supaya kolom struk tetap rata.
-  const kirimWa = () =>
-    window.open(`https://wa.me/?text=${encodeURIComponent('```\n' + teksStruk(t, pengaturan) + '\n```')}`, '_blank')
-
   return (
     <Modal onTutup={onBaru}>
       <div className="flex flex-1 flex-col items-center justify-center overflow-y-auto p-6 text-center">
@@ -155,19 +149,11 @@ function Sukses({ t, onBaru }) {
         )}
       </div>
       <div className="grid gap-2 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
-        <div className="grid grid-cols-2 gap-2">
-          <button onClick={kirimWa} className="btn btn-secondary px-2 text-sm whitespace-nowrap">
-            <MessageCircle size={18} /> Kirim WhatsApp
-          </button>
-          <button onClick={() => window.print()} className="btn btn-secondary px-2 text-sm whitespace-nowrap">
-            <Printer size={18} /> Cetak
-          </button>
-        </div>
+        <TombolStruk transaksi={t} />
         <button onClick={onBaru} className="btn btn-primary min-h-14 text-lg">
           <Plus size={20} /> Pesanan baru
         </button>
       </div>
-      <Struk transaksi={t} />
     </Modal>
   )
 }
