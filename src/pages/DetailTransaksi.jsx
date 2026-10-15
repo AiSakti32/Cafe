@@ -3,6 +3,7 @@ import { ChevronLeft } from 'lucide-react'
 import { useStore } from '../store'
 import { rupiah, nomorTrx, tanggal } from '../lib/format'
 import { TombolStruk } from '../components/Struk'
+import { toast } from '../components/Toast'
 
 export default function DetailTransaksi() {
   const { id } = useParams()
@@ -25,7 +26,10 @@ export default function DetailTransaksi() {
 
   const batal = t.status === 'batal'
   const batalkan = () => {
-    if (confirm(`Batalkan transaksi ${nomorTrx(t.nomor)}? Transaksi tetap tercatat tapi tidak dihitung di omzet.`)) batalkanTransaksi(t.id)
+    if (confirm(`Batalkan transaksi ${nomorTrx(t.nomor)}? Transaksi tetap tercatat tapi tidak dihitung di omzet.`)) {
+      batalkanTransaksi(t.id)
+      toast(`Transaksi ${nomorTrx(t.nomor)} dibatalkan`)
+    }
   }
 
   return (
@@ -57,7 +61,7 @@ export default function DetailTransaksi() {
               <div className="text-sm text-stone-500 tabular-nums">
                 {i.qty} × {rupiah(i.harga)}
               </div>
-              {i.catatan && <div className="text-sm text-amber-800">Catatan: {i.catatan}</div>}
+              {i.catatan && <div className="text-sm text-primary-900">Catatan: {i.catatan}</div>}
             </li>
           ))}
         </ul>

@@ -2,13 +2,89 @@
 
 @theme {
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+
+  /* Warna utama: merah maroon. Tombol utama = primary-800 (kontras teks putih ±10:1). */
+  --color-primary-50: #fdf3f4;
+  --color-primary-100: #fbe5e8;
+  --color-primary-200: #f6ccd2;
+  --color-primary-300: #eea4ae;
+  --color-primary-400: #e2717f;
+  --color-primary-500: #cf4659;
+  --color-primary-600: #b22b41;
+  --color-primary-700: #942034;
+  --color-primary-800: #7c1d2e;
+  --color-primary-900: #661b2a;
+  --color-primary-950: #390a13;
+  /* Latar krem hangat */
+  --color-krem: #faf6f3;
+
+  /* Animasi: singkat & halus, hanya di elemen kunci (badge, sheet/dialog, halaman, centang sukses, toast). */
   --animate-pop: pop 0.25s ease-out;
+  --animate-naik: naik 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+  --animate-muncul: muncul 0.2s ease-out;
+  --animate-pudar: pudar 0.2s ease-out;
+  --animate-turun: turun 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
 
   @keyframes pop {
     0% { transform: scale(0.6); }
     60% { transform: scale(1.25); }
     100% { transform: scale(1); }
   }
+  @keyframes naik {
+    from { transform: translateY(100%); }
+  }
+  @keyframes muncul {
+    from { opacity: 0; transform: scale(0.96); }
+  }
+  @keyframes pudar {
+    from { opacity: 0; }
+  }
+  @keyframes turun {
+    from { opacity: 0; transform: translateY(-12px); }
+  }
+}
+
+/* Centang di layar sukses digambar perlahan. */
+.centang path {
+  stroke-dasharray: 30;
+  stroke-dashoffset: 30;
+  animation: gambar 0.4s 0.15s ease-out forwards;
+}
+@keyframes gambar {
+  to { stroke-dashoffset: 0; }
+}
+
+/* Hormati pengaturan "kurangi gerakan" di HP. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Fokus keyboard selalu terlihat. */
+:focus-visible {
+  outline: 2px solid var(--color-primary-700);
+  outline-offset: 2px;
+}
+
+button:not(:disabled),
+label:has(> input[type="file"]),
+select {
+  cursor: pointer;
+}
+
+/* Sembunyikan panah naik/turun di input angka (harga, uang diterima). */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
 }
 
 /* Struk 58mm: di layar disembunyikan, saat cetak hanya struk yang tampil. */
@@ -34,7 +110,7 @@
 }
 
 body {
-  @apply bg-stone-50 text-stone-900 antialiased;
+  @apply bg-krem text-stone-900 antialiased;
 }
 
 @layer components {
@@ -42,12 +118,12 @@ body {
     @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 font-semibold transition active:scale-95 disabled:pointer-events-none disabled:opacity-50;
   }
   .btn-primary {
-    @apply bg-amber-700 text-white hover:bg-amber-800;
+    @apply bg-primary-800 text-white hover:bg-primary-900;
   }
   .btn-secondary {
     @apply bg-white text-stone-900 ring-1 ring-stone-300 hover:bg-stone-100;
   }
   .input {
-    @apply min-h-11 w-full rounded-xl border border-stone-300 bg-white px-3 focus:border-amber-700 focus:ring-2 focus:ring-amber-700/20 focus:outline-none;
+    @apply min-h-11 w-full rounded-xl border border-stone-300 bg-white px-3 focus:border-primary-800 focus:ring-2 focus:ring-primary-800/20 focus:outline-none;
   }
 }

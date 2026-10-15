@@ -8,8 +8,13 @@ export default function MenuThumb({ nama, foto, warna, className = '' }) {
     .map((k) => k[0])
     .join('')
     .toUpperCase()
+  const w = warna ?? '#78716c'
   return (
-    <div style={{ backgroundColor: warna ?? '#78716c' }} className={`grid place-items-center font-bold text-white ${className}`}>
+    <div
+      // Gradasi lembut dari warna kategori; backgroundColor jadi cadangan di browser lama.
+      style={{ backgroundColor: w, backgroundImage: `linear-gradient(140deg, color-mix(in srgb, ${w} 72%, white), ${w})` }}
+      className={`grid place-items-center font-bold text-white ${className}`}
+    >
       {inisial || '?'}
     </div>
   )

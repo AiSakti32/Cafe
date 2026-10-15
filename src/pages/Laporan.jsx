@@ -33,8 +33,8 @@ export default function Laporan() {
             key={label}
             onClick={() => pilih(d, s)}
             aria-pressed={dari === d && sampai === s}
-            className={`min-h-11 rounded-full px-4 font-semibold ${
-              dari === d && sampai === s ? 'bg-amber-700 text-white' : 'bg-white text-stone-600 ring-1 ring-stone-200'
+            className={`min-h-11 rounded-full px-4 font-semibold transition-colors duration-200 ${
+              dari === d && sampai === s ? 'bg-primary-800 text-white' : 'bg-white text-stone-600 ring-1 ring-stone-200'
             }`}
           >
             {label}
@@ -59,8 +59,8 @@ export default function Laporan() {
           ['Rata-rata', rupiah(L.rata)],
           ['Item terjual', L.itemTerjual],
         ].map(([label, nilai], i) => (
-          <div key={label} className={`rounded-2xl p-4 ${i ? 'bg-white ring-1 ring-stone-200' : 'bg-amber-700 text-white'}`}>
-            <div className={`text-sm ${i ? 'text-stone-500' : 'text-amber-100'}`}>{label}</div>
+          <div key={label} className={`rounded-2xl p-4 ${i ? 'bg-white ring-1 ring-stone-200' : 'bg-linear-to-br from-primary-700 to-primary-900 text-white shadow-md shadow-primary-900/20'}`}>
+            <div className={`text-sm ${i ? 'text-stone-500' : 'text-primary-100'}`}>{label}</div>
             <div className="mt-1 text-xl font-bold tabular-nums sm:text-2xl">{nilai}</div>
           </div>
         ))}
@@ -74,7 +74,7 @@ export default function Laporan() {
             <ol className="space-y-3">
               {L.terlaris.map((m, i) => (
                 <li key={m.menuId} className="flex items-center gap-3">
-                  <span className="grid size-7 shrink-0 place-items-center rounded-full bg-amber-100 text-sm font-bold text-amber-800">
+                  <span className="grid size-7 shrink-0 place-items-center rounded-full bg-primary-100 text-sm font-bold text-primary-900">
                     {i + 1}
                   </span>
                   <span className="min-w-0 flex-1 truncate font-medium">{m.nama}</span>
@@ -92,7 +92,7 @@ export default function Laporan() {
         <section className="rounded-2xl bg-white p-4 ring-1 ring-stone-200">
           <h2 className="mb-3 font-semibold">Metode bayar</h2>
           {[
-            ['Tunai', L.tunai, 'bg-amber-700'],
+            ['Tunai', L.tunai, 'bg-primary-800'],
             ['QRIS', L.qris, 'bg-stone-500'],
           ].map(([label, d, warna]) => (
             <div key={label} className="mb-4 last:mb-0">
@@ -119,7 +119,7 @@ export default function Laporan() {
               const batal = t.status === 'batal'
               return (
                 <li key={t.id}>
-                  <Link to={`/laporan/${t.id}`} className="flex min-h-14 items-center gap-3 px-4 py-3 hover:bg-stone-50">
+                  <Link to={`/laporan/${t.id}`} className="flex min-h-14 items-center gap-3 px-4 py-3 transition-colors hover:bg-primary-50/50">
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
                         <span className="font-semibold">{nomorTrx(t.nomor)}</span>

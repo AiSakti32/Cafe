@@ -128,15 +128,15 @@ Aplikasi punya 5 halaman yang diakses lewat 4 tombol navigasi. Kasir adalah hala
 
 ## Desain UI
 
-Gayanya "kopi hangat": latar krem, aksen karamel, kartu menu besar yang enak diketuk jempol. Satu layout untuk semua ukuran layar, yang berubah hanya susunannya.
+Gayanya "kopi hangat": latar krem, aksen merah maroon, kartu menu besar yang enak diketuk jempol. Satu layout untuk semua ukuran layar, yang berubah hanya susunannya.
 
 **Warna (Tailwind)**
 
 | Peran | Warna | Dipakai untuk |
 | --- | --- | --- |
-| Latar | `stone-50` #FAFAF9 | Background halaman |
+| Latar | `krem` #FAF6F3 | Background halaman |
 | Permukaan | `white` | Kartu, panel, bottom sheet |
-| Utama | `amber-700` #B45309 | Tombol Bayar, tab aktif, badge qty |
+| Utama | `primary-800` (maroon) #7C1D2E, skala `primary-50`–`950` di `src/index.css` | Tombol Bayar, tab aktif, badge qty |
 | Gelap | `stone-900` #1C1917 | Teks utama, header |
 | Sukses | `emerald-600` | Layar sukses, status Tersedia |
 | Bahaya | `rose-600` | Batalkan, hapus, status Habis |

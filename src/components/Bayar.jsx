@@ -3,16 +3,18 @@ import { X, Check, Plus } from 'lucide-react'
 import { useStore, hitungTotal } from '../store'
 import { rupiah, nomorTrx } from '../lib/format'
 import { TombolStruk } from './Struk'
+import { useTutup } from '../lib/useTutup'
 
 // HP: layar penuh. sm ke atas: dialog di tengah.
 function Modal({ children, onTutup }) {
+  useTutup(true, onTutup)
   return (
-    <div onClick={onTutup} className="fixed inset-0 z-50 flex bg-stone-900/40 sm:items-center sm:justify-center sm:p-4">
+    <div onClick={onTutup} className="fixed inset-0 z-50 flex animate-pudar bg-stone-900/50 sm:items-center sm:justify-center sm:p-4">
       <div
         role="dialog"
         aria-modal="true"
         onClick={(e) => e.stopPropagation()}
-        className="flex h-full w-full flex-col bg-white sm:h-auto sm:max-h-[90dvh] sm:max-w-md sm:rounded-3xl"
+        className="flex h-full w-full animate-naik flex-col bg-white sm:h-auto sm:animate-muncul sm:shadow-2xl sm:max-h-[90dvh] sm:max-w-md sm:rounded-3xl"
       >
         {children}
       </div>
@@ -65,7 +67,7 @@ export default function Bayar({ onTutup }) {
               role="tab"
               aria-selected={metode === id}
               onClick={() => setMetode(id)}
-              className={`min-h-11 rounded-lg font-semibold ${metode === id ? 'bg-white text-amber-700 shadow-sm' : 'text-stone-500'}`}
+              className={`min-h-11 rounded-lg font-semibold transition-colors duration-200 ${metode === id ? 'bg-white text-primary-800 shadow-sm' : 'text-stone-500'}`}
             >
               {label}
             </button>
@@ -96,8 +98,8 @@ export default function Bayar({ onTutup }) {
                 <button
                   key={label}
                   onClick={() => setDiterima(String(nilai))}
-                  className={`min-h-11 rounded-xl text-sm font-semibold ring-1 active:scale-95 ${
-                    Number(diterima) === nilai ? 'bg-amber-50 text-amber-800 ring-amber-700' : 'ring-stone-300'
+                  className={`min-h-11 rounded-xl text-sm font-semibold ring-1 transition active:scale-95 ${
+                    Number(diterima) === nilai ? 'bg-primary-50 text-primary-900 ring-primary-800' : 'ring-stone-300'
                   }`}
                 >
                   {label}
@@ -134,7 +136,7 @@ function Sukses({ t, onBaru }) {
     <Modal onTutup={onBaru}>
       <div className="flex flex-1 flex-col items-center justify-center overflow-y-auto p-6 text-center">
         <div className="mb-4 grid size-20 animate-pop place-items-center rounded-full bg-emerald-600 text-white">
-          <Check size={44} strokeWidth={3} />
+          <Check size={44} strokeWidth={3} className="centang" aria-hidden="true" />
         </div>
         <h2 className="text-xl font-bold">Pembayaran berhasil</h2>
         <div className="mt-1 text-stone-500">

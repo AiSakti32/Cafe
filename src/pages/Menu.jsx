@@ -4,6 +4,8 @@ import { useStore } from '../store'
 import { rupiah } from '../lib/format'
 import MenuThumb from '../components/MenuThumb'
 import { kompresGambar } from '../lib/gambar'
+import { useTutup } from '../lib/useTutup'
+import { toast } from '../components/Toast'
 
 export default function Menu() {
   const [tab, setTab] = useState('menu')
@@ -30,7 +32,7 @@ export default function Menu() {
             role="tab"
             aria-selected={tab === id}
             onClick={() => setTab(id)}
-            className={`min-h-11 rounded-lg font-semibold ${tab === id ? 'bg-white text-amber-700 shadow-sm' : 'text-stone-500'}`}
+            className={`min-h-11 rounded-lg font-semibold transition-colors duration-200 ${tab === id ? 'bg-white text-primary-800 shadow-sm' : 'text-stone-500'}`}
           >
             {label}
           </button>
@@ -55,7 +57,7 @@ function DaftarMenu({ onUbah, onTambah }) {
           <button onClick={onTambah} className="btn btn-primary">
             <Plus size={18} /> Tambah menu
           </button>
-          <button onClick={isiContoh} className="btn btn-secondary">
+          <button onClick={() => toast(`${isiContoh()} menu contoh ditambahkan`)} className="btn btn-secondary">
             Isi menu contoh
           </button>
         </div>
@@ -110,11 +112,13 @@ function FormMenu({ menu, onTutup }) {
   const [kategoriId, setKategoriId] = useState(menu.kategoriId ?? kategori[0]?.id ?? '')
   const [harga, setHarga] = useState(menu.harga ?? '')
   const [foto, setFoto] = useState(menu.foto ?? null)
+  useTutup(true, onTutup)
 
   // Validasi nama/harga/kategori pakai atribut bawaan (required, pattern, min).
   const simpan = (e) => {
     e.preventDefault()
     simpanMenu({ id: menu.id, nama: nama.trim(), kategoriId, harga: Number(harga), foto })
+    toast(menu.id ? 'Menu disimpan' : 'Menu ditambahkan')
     onTutup()
   }
 
@@ -132,16 +136,17 @@ function FormMenu({ menu, onTutup }) {
   const hapus = () => {
     if (confirm(`Hapus menu "${menu.nama}"?`)) {
       hapusMenu(menu.id)
+      toast('Menu dihapus')
       onTutup()
     }
   }
 
   return (
-    <div onClick={onTutup} className="fixed inset-0 z-50 flex items-end justify-center bg-stone-900/40 sm:items-center sm:p-4">
+    <div onClick={onTutup} className="fixed inset-0 z-50 flex animate-pudar items-end justify-center bg-stone-900/50 sm:items-center sm:p-4">
       <form
         onSubmit={simpan}
         onClick={(e) => e.stopPropagation()}
-        className="max-h-[90dvh] w-full overflow-y-auto rounded-t-3xl bg-white p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:max-w-md sm:rounded-3xl sm:pb-5"
+        className="max-h-[90dvh] w-full animate-naik overflow-y-auto rounded-t-3xl bg-white shadow-2xl sm:animate-muncul p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:max-w-md sm:rounded-3xl sm:pb-5"
       >
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-bold">{menu.id ? 'Ubah menu' : 'Tambah menu'}</h2>
@@ -231,12 +236,14 @@ function DaftarKategori() {
   const tambah = (e) => {
     e.preventDefault()
     tambahKategori(baru.trim())
+    toast('Kategori ditambahkan')
     setBaru('')
   }
 
   const simpanEdit = (e) => {
     e.preventDefault()
     ubahKategori(edit.id, edit.nama.trim())
+    toast('Nama kategori diubah')
     setEdit(null)
   }
 
@@ -297,7 +304,11 @@ function DaftarKategori() {
                     <Pencil size={18} />
                   </button>
                   <button
-                    onClick={() => confirm(`Hapus kategori "${k.nama}"?`) && hapusKategori(k.id)}
+                    onClick={() => {
+                      if (!confirm(`Hapus kategori "${k.nama}"?`)) return
+                      hapusKategori(k.id)
+                      toast('Kategori dihapus')
+                    }}
                     disabled={jumlah > 0}
                     aria-label={`Hapus ${k.nama}`}
                     className="grid size-11 place-items-center rounded-xl text-rose-600 hover:bg-rose-50 disabled:text-stone-300 disabled:hover:bg-transparent"
