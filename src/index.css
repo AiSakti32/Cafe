@@ -2,6 +2,35 @@
 
 @theme {
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --animate-pop: pop 0.25s ease-out;
+
+  @keyframes pop {
+    0% { transform: scale(0.6); }
+    60% { transform: scale(1.25); }
+    100% { transform: scale(1); }
+  }
+}
+
+/* Struk 58mm: di layar disembunyikan, saat cetak hanya struk yang tampil. */
+.struk {
+  display: none;
+}
+@media print {
+  @page {
+    margin: 0;
+  }
+  #root {
+    display: none;
+  }
+  .struk {
+    display: block;
+    width: 58mm;
+    margin: 0;
+    padding: 3mm 5mm;
+    font: 7pt/1.35 "Courier New", monospace;
+    white-space: pre-wrap;
+    color: #000;
+  }
 }
 
 body {

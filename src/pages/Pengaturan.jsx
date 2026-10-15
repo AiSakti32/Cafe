@@ -1,13 +1,21 @@
 import { useState } from 'react'
-import { useStore } from '../store'
+import { useStore, isContoh } from '../store'
 
 export default function Pengaturan() {
-  const isiContoh = useStore((s) => s.isiContoh)
+  const { menu, isiContoh, hapusContoh } = useStore()
   const [pesan, setPesan] = useState('')
 
   const isi = () => {
     const n = isiContoh()
     setPesan(n ? `${n} menu contoh ditambahkan.` : 'Semua menu contoh sudah ada.')
+  }
+
+  const hapus = () => {
+    const n = menu.filter(isContoh).length
+    if (!n) return setPesan('Tidak ada menu contoh untuk dihapus.')
+    if (!confirm(`Hapus ${n} menu contoh? Menu buatan sendiri tidak ikut terhapus.`)) return
+    hapusContoh()
+    setPesan(`${n} menu contoh dihapus.`)
   }
 
   return (
@@ -18,9 +26,14 @@ export default function Pengaturan() {
         <p className="mt-1 text-sm text-stone-500">
           Isi daftar menu dengan contoh supaya bisa langsung mencoba kasir. Menu yang sudah ada tidak diubah.
         </p>
-        <button onClick={isi} className="btn btn-secondary mt-3">
-          Isi menu contoh
-        </button>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <button onClick={isi} className="btn btn-secondary">
+            Isi menu contoh
+          </button>
+          <button onClick={hapus} className="btn text-rose-600 ring-1 ring-rose-200 hover:bg-rose-50">
+            Hapus menu contoh
+          </button>
+        </div>
         {pesan && (
           <p role="status" className="mt-2 text-sm text-emerald-700">
             {pesan}

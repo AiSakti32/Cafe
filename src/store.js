@@ -31,19 +31,29 @@ const MENU_CONTOH = [
   ['Pisang Goreng', 'snack', 12000],
 ]
 
+// Menu contoh ditandai saat diisi; menu lama (sebelum ada tanda) dikenali dari nama+kategori+harga yang persis sama.
+export const isContoh = (m) =>
+  m.contoh ?? MENU_CONTOH.some(([nama, kategoriId, harga]) => m.nama === nama && m.kategoriId === kategoriId && m.harga === harga)
+
+export const hitungTotal = (items) => items.reduce((n, i) => n + i.harga * i.qty, 0)
+
 export const useStore = create(
   persist(
     (set, get) => ({
       kategori: KATEGORI_AWAL,
       menu: [],
+      keranjang: [], // [{ menuId, nama, harga, qty, catatan }], nama & harga disalin saat ditambah
+      transaksi: [],
+      pengaturan: { namaCafe: '', alamat: '', noWa: '', teksStruk: 'Terima kasih!', gambarQris: null, terakhirBackup: null },
 
       simpanMenu: (data) =>
         set((s) => ({
           menu: data.id
             ? s.menu.map((m) => (m.id === data.id ? { ...m, ...data } : m))
-            : [...s.menu, { ...data, id: uid(), tersedia: true }],
+            : [...s.menu, { ...data, id: uid(), tersedia: true, contoh: false }],
         })),
-      hapusMenu: (id) => set((s) => ({ menu: s.menu.filter((m) => m.id !== id) })),
+      hapusMenu: (id) =>
+        set((s) => ({ menu: s.menu.filter((m) => m.id !== id), keranjang: s.keranjang.filter((i) => i.menuId !== id) })),
       toggleTersedia: (id) =>
         set((s) => ({ menu: s.menu.map((m) => (m.id === id ? { ...m, tersedia: !m.tersedia } : m)) })),
 
@@ -69,13 +79,55 @@ export const useStore = create(
       isiContoh: () => {
         const { kategori, menu } = get()
         const menuBaru = MENU_CONTOH.filter(([nama]) => !menu.some((m) => m.nama === nama)).map(
-          ([nama, kategoriId, harga]) => ({ id: uid(), nama, kategoriId, harga, tersedia: true, foto: null }),
+          ([nama, kategoriId, harga]) => ({ id: uid(), nama, kategoriId, harga, tersedia: true, foto: null, contoh: true }),
         )
         set({
           kategori: [...kategori, ...KATEGORI_AWAL.filter((k) => !kategori.some((x) => x.id === k.id))],
           menu: [...menu, ...menuBaru],
         })
         return menuBaru.length
+      },
+      hapusContoh: () =>
+        set((s) => {
+          const sisa = s.menu.filter((m) => !isContoh(m))
+          return { menu: sisa, keranjang: s.keranjang.filter((i) => sisa.some((m) => m.id === i.menuId)) }
+        }),
+
+      tambahKeKeranjang: (m) =>
+        set((s) => ({
+          keranjang: s.keranjang.some((i) => i.menuId === m.id)
+            ? s.keranjang.map((i) => (i.menuId === m.id ? { ...i, qty: i.qty + 1 } : i))
+            : [...s.keranjang, { menuId: m.id, nama: m.nama, harga: m.harga, qty: 1, catatan: '' }],
+        })),
+      // qty 0 = item terhapus (K4).
+      ubahQty: (menuId, delta) =>
+        set((s) => ({
+          keranjang: s.keranjang.map((i) => (i.menuId === menuId ? { ...i, qty: i.qty + delta } : i)).filter((i) => i.qty > 0),
+        })),
+      ubahCatatan: (menuId, catatan) =>
+        set((s) => ({ keranjang: s.keranjang.map((i) => (i.menuId === menuId ? { ...i, catatan } : i)) })),
+      kosongkanKeranjang: () => set({ keranjang: [] }),
+
+      // Simpan transaksi dari keranjang. Ditolak (null) kalau keranjang kosong atau uang kurang (K7).
+      bayar: ({ metode, dibayar }) => {
+        const { keranjang, transaksi } = get()
+        const total = hitungTotal(keranjang)
+        if (!keranjang.length || !(dibayar >= total)) return null
+        const t = {
+          id: uid(),
+          nomor: transaksi.reduce((n, x) => Math.max(n, x.nomor), 0) + 1,
+          waktu: new Date().toISOString(),
+          items: keranjang.map((i) => ({ ...i, catatan: i.catatan.trim() })),
+          subtotal: total,
+          diskon: 0,
+          total,
+          metode,
+          dibayar,
+          kembalian: dibayar - total,
+          status: 'selesai',
+        }
+        set({ transaksi: [...transaksi, t], keranjang: [] })
+        return t
       },
     }),
     { name: 'kasir-cafe' },
